@@ -38,8 +38,8 @@ app.use("/api/cart", cartRouter);
 
 // Connect to the Database
 mongoose
-  .connect(process.env.CONNECTION_STRING, {
-    dbName: process.env.DB_NAME,
+  .connect("mongodb+srv://yashish393:Ayz7879%40%40@fg.ar2ie.mongodb.net/", {
+    dbName: "FGROPlant",
   })
   .then(() => {
     console.log("MongoDB Connected");
@@ -49,7 +49,7 @@ mongoose
   });
 
 // Server Running
-const port = process.env.PORT || 3000;
+const port = 1000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import Admin from "../models/Admin.js";
+import Admin from "../Models/Admin.js"
 import { generateToken } from "../utils/jwt.js";
 
 //Admin Register
