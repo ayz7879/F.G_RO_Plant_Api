@@ -13,7 +13,7 @@ const app = express();
 
 // Define CORS options
 const corsOptions = {
-  origin: true,
+  origin: "*",
   credentials: true, // Allows cookies to be sent and received
   methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
 };
@@ -49,7 +49,7 @@ mongoose
   });
 
 // Server Running
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
