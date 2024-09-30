@@ -2,7 +2,7 @@ import Customer from "../Models/Customer.js";
 
 // Add New Customer
 export const addCustomer = async (req, res) => {
-  const { name, address, phone, advancePaid, jarDeposit, pricePerJar } =
+  const { name, address, phone, advancePaid, jarDeposit, pricePerJar, capsuleDeposit } =
     req.body;
   try {
     const existingCustomer = await Customer.findOne({ phone });
@@ -20,6 +20,7 @@ export const addCustomer = async (req, res) => {
       phone,
       advancePaid,
       jarDeposit,
+      capsuleDeposit: parseInt(capsuleDeposit, 10),
       pricePerJar,
     });
 
@@ -63,7 +64,7 @@ export const getAllCustomer = async (req, res) => {
 // Update Customer
 export const updateCustomer = async (req, res) => {
   const { id } = req.params;
-  const { name, address, phone, advancePaid,jarDeposit, pricePerJar } = req.body;
+  const { name, address, phone, advancePaid, jarDeposit, pricePerJar, capsuleDeposit } = req.body;
 
   try {
     const customer = await Customer.findById(id);
@@ -80,6 +81,7 @@ export const updateCustomer = async (req, res) => {
     customer.phone = phone || customer.phone;
     customer.advancePaid = advancePaid || customer.advancePaid;
     customer.jarDeposit = jarDeposit || customer.jarDeposit;
+    customer.capsuleDeposit = parseInt(capsuleDeposit, 10) || customer.capsuleDeposit;
     customer.pricePerJar = pricePerJar || customer.pricePerJar;
 
     await customer.save();
@@ -122,6 +124,4 @@ export const deleteCustomer = async (req, res) => {
       error: error.message,
     });
   }
-}; 
-   
- 
+};

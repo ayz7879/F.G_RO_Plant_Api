@@ -6,6 +6,7 @@ const customerSchema = new mongoose.Schema({
   phone: { type: String, required: true, unique: true },
   advancePaid: { type: Number, default: 0 },
   jarDeposit: { type: Number, default: 0 },
+  capsuleDeposit: { type: Number, default: 0 },
   pricePerJar: { type: Number, required: true },
   createdAt: { type: Date, default: Date.now },
 });
