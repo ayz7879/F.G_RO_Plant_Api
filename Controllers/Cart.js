@@ -7,9 +7,7 @@ export const addToCart = async (req, res) => {
   const {
     customerId,
     jarsGiven = 0,
-
     jarsTaken = 0,
-
     customerPay = 0,
   } = req.body;
 
@@ -135,12 +133,16 @@ export const updateCartItem = async (req, res) => {
     pendingPayment,
     totalJarsGiven,
     totalJarsTaken,
+    capsulesGiven,
+    capsulesTaken,
     totalCapsulesGiven,
     totalCapsulesTaken,
     pendingCapsules
   } = req.body;
 
+  console.log(req.body)
   try {
+
     let cart = await Cart.findOne({ customerId });
 
     if (!cart) {
@@ -158,7 +160,9 @@ export const updateCartItem = async (req, res) => {
 
     // Update the item with the new values
     itemToUpdate.jarsGiven = jarsGiven;
+    itemToUpdate.capsulesGiven = capsulesGiven;
     itemToUpdate.jarsTaken = jarsTaken;
+    itemToUpdate.capsulesTaken = capsulesTaken;
     itemToUpdate.customerPay = customerPay;
     itemToUpdate.totalCustomerPaid = totalCustomerPaid;
     itemToUpdate.totalAmount = totalAmount;
@@ -171,6 +175,7 @@ export const updateCartItem = async (req, res) => {
     itemToUpdate.pendingCapsules = pendingCapsules;
 
     await cart.save();
+    // console.log(cart)
 
     res.json({
       message: "Cart item updated and totals recalculated successfully",
