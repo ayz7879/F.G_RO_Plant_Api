@@ -1,6 +1,6 @@
 import Cart from "../Models/Cart.js";
 import Customer from "../Models/Customer.js";
-import moment from "moment"; 
+import moment from "moment";
 
 // Add to cart
 export const addToCart = async (req, res) => {
@@ -135,6 +135,9 @@ export const updateCartItem = async (req, res) => {
     pendingPayment,
     totalJarsGiven,
     totalJarsTaken,
+    totalCapsulesGiven,
+    totalCapsulesTaken,
+    pendingCapsules
   } = req.body;
 
   try {
@@ -163,6 +166,9 @@ export const updateCartItem = async (req, res) => {
     itemToUpdate.pendingPayment = pendingPayment;
     itemToUpdate.totalJarsGiven = totalJarsGiven;
     itemToUpdate.totalJarsTaken = totalJarsTaken;
+    itemToUpdate.totalCapsulesGiven = totalCapsulesGiven;
+    itemToUpdate.totalCapsulesTaken = totalCapsulesTaken;
+    itemToUpdate.pendingCapsules = pendingCapsules;
 
     await cart.save();
 
