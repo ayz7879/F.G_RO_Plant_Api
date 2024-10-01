@@ -7,9 +7,16 @@ export const addToCart = async (req, res) => {
   const {
     customerId,
     jarsGiven = 0,
+
     jarsTaken = 0,
+
     customerPay = 0,
   } = req.body;
+
+
+  const capsulesGiven = parseInt(req.body.capsulesGiven, 10) || 0
+  const capsulesTaken = parseInt(req.body.capsulesTaken, 10) || 0
+
 
   try {
     // Get the customer details to fetch price per jar
@@ -33,17 +40,25 @@ export const addToCart = async (req, res) => {
     // Calculate totals from existing cart
     let totalJarsGiven =
       cart.item.reduce((total, item) => total + item.jarsGiven, 0) + jarsGiven;
+
+    let totalCapsulesGiven = cart.item.reduce((total, item) => total + item.capsulesGiven, 0) + capsulesGiven;
+
     let totalJarsTaken =
       cart.item.reduce((total, item) => total + item.jarsTaken, 0) + jarsTaken;
 
+    let totalCapsulesTaken =
+      cart.item.reduce((total, item) => total + item.capsulesTaken, 0) + capsulesTaken;
+
     // Calculate pending jars
-    const pendingJars = totalJarsGiven - totalJarsTaken; 
+    const pendingJars = totalJarsGiven - totalJarsTaken;
+    const pendingCapsules = totalCapsulesGiven - totalCapsulesTaken;
 
     const totalCustomerPaid =
       cart.item.reduce((total, item) => total + item.customerPay, 0) +
       customerPay;
     // Calculate the total amount based on totalJarsGiven
-    const totalAmount = totalJarsGiven * pricePerJar;
+    const totalGiven = totalJarsGiven + totalCapsulesGiven
+    const totalAmount = totalGiven * pricePerJar;
 
     // Calculate pending payment as total amount minus customer pay
     const pendingPayment = totalAmount - totalCustomerPaid;
@@ -51,14 +66,19 @@ export const addToCart = async (req, res) => {
     // Create the jar object with calculated values and add the current date
     const jar = {
       jarsGiven,
+      capsulesGiven,
       jarsTaken,
+      capsulesTaken,
       customerPay,
       totalCustomerPaid,
       totalAmount,
       pendingJars,
+      pendingCapsules,
       pendingPayment,
       totalJarsGiven,
+      totalCapsulesGiven,
       totalJarsTaken,
+      totalCapsulesTaken,
       date: new Date(), // Add the current date and time for this cart item
     };
 
@@ -67,6 +87,7 @@ export const addToCart = async (req, res) => {
 
     // Save the updated cart
     await cart.save();
+
 
     res.json({ message: "Item Added To Cart", success: true, cart, customer });
   } catch (error) {
