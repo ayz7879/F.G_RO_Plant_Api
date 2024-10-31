@@ -4,6 +4,7 @@ import {
   customerCart,
   deleteCartItem,
   getAllCarts,
+  getAllCartsForDashbord,
   updateCartItem,
 } from "../Controllers/Cart.js";
 
@@ -17,6 +18,7 @@ router.get("/customer/:customerId", customerCart);
 
 //get all cart
 router.get("/customers", getAllCarts);
+router.get("/for/dashbord", getAllCartsForDashbord);
 
 // update customer cart
 router.put("/update/:customerId/:id", updateCartItem);

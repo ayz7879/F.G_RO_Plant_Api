@@ -274,6 +274,8 @@ export const getAllCarts = async (req, res) => {
       success: true,
       carts: finalValidCarts,
     });
+
+
   } catch (error) {
     console.error("Error retrieving all carts:", error);
     res.status(500).json({ message: error.message, success: false });
@@ -282,6 +284,213 @@ export const getAllCarts = async (req, res) => {
 
 
 
+
+
+import { startOfDay, endOfDay, startOfMonth, endOfMonth } from 'date-fns';
+
+// Get All Valid Carts with Dynamic Filters
+export const getAllCartsForDashbord = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    const today = new Date();
+
+    // Set up date filters
+    const todayStart = startOfDay(today);
+    const todayEnd = endOfDay(today);
+    const thisMonthStart = startOfMonth(today);
+    const thisMonthEnd = endOfMonth(today);
+
+    // Define date range based on request or default to null
+    const from = startDate ? new Date(startDate) : null;
+    const to = endDate ? new Date(endDate) : null;
+
+    // Fetch carts within the specified or default date range and populate customerId
+    const carts = await Cart.find({
+      "item.date": { $gte: from || todayStart, $lte: to || todayEnd }
+    }).populate("customerId");
+
+    
+    // Filter carts to ensure each has a valid customer
+    const validCarts = await Promise.all(
+      carts
+        .filter(cart => cart.customerId)
+        .map(async (cart) => {
+          const customerExists = await Customer.findById(cart.customerId._id);
+          return customerExists ? cart : null;
+        })
+    ).then(carts => carts.filter(cart => cart !== null));
+
+
+    // Initialize stats object with zeros
+    const stats = {
+      today: {
+        jarsGiven: 0,
+        jarsTaken: 0,
+        capsulesGiven: 0,
+        capsulesTaken: 0,
+        customerPay: 0, // Add customerPay field
+      },
+      thisMonth: {
+        jarsGiven: 0,
+        jarsTaken: 0,
+        capsulesGiven: 0,
+        capsulesTaken: 0,
+        customerPay: 0, // Add customerPay field
+      },
+      customRange: {
+        jarsGiven: startDate && endDate ? 0 : undefined, // Set to undefined if no date is provided
+        jarsTaken: startDate && endDate ? 0 : undefined,
+        capsulesGiven: startDate && endDate ? 0 : undefined,
+        capsulesTaken: startDate && endDate ? 0 : undefined,
+        customerPay: startDate && endDate ? 0 : undefined, // Add customerPay field
+      }
+    };
+
+
+
+    // Calculate today's stats, this month's stats, and custom range stats
+    validCarts.forEach(cart => {
+      cart.item.forEach(cartItem => {
+        const cartDate = new Date(cartItem.date);
+        const updateStats = (target) => {
+          target.jarsGiven += cartItem.jarsGiven || 0;
+          target.jarsTaken += cartItem.jarsTaken || 0;
+          target.capsulesGiven += cartItem.capsulesGiven || 0;
+          target.capsulesTaken += cartItem.capsulesTaken || 0;
+          target.customerPay += cartItem.customerPay || 0; // Add customerPay to the stats
+        };
+
+        // Update today’s stats if within today's range
+        if (cartDate >= todayStart && cartDate <= todayEnd) {
+          updateStats(stats.today);
+        }
+
+        // Update this month’s stats if within this month's range
+        if (cartDate >= thisMonthStart && cartDate <= thisMonthEnd) {
+          updateStats(stats.thisMonth);
+        }
+
+        // Update custom range stats for the filtered date range
+        if (from && to && cartDate >= from && cartDate <= to) {
+          updateStats(stats.customRange);
+        }
+      });
+    });
+
+
+    // Send final response
+    res.json({
+      message: "Valid customer carts retrieved successfully",
+      success: true,
+      carts: validCarts,
+      stats,
+    });
+  } catch (error) {
+    console.error("Error retrieving all carts:", error);
+    res.status(500).json({ message: error.message, success: false });
+  }
+};
+//   try {
+//     const { startDate, endDate } = req.query;
+
+//     console.log(req.query)
+//     const today = new Date();
+
+//     // Set up date filters
+//     const todayStart = startOfDay(today);
+//     const todayEnd = endOfDay(today);
+//     const thisMonthStart = startOfMonth(today);
+//     const thisMonthEnd = endOfMonth(today);
+
+//     // Define date range based on request or default to today
+//     const from = startDate ? new Date(startDate) : todayStart;
+//     const to = endDate ? new Date(endDate) : todayEnd;
+
+//     // Fetch carts within the specified or default date range and populate customerId
+//     const carts = await Cart.find({
+//       "item.date": { $gte: from, $lte: to }
+//     }).populate("customerId");
+
+//     // Filter carts to ensure each has a valid customer
+//     const validCarts = await Promise.all(
+//       carts
+//         .filter(cart => cart.customerId)
+//         .map(async (cart) => {
+//           const customerExists = await Customer.findById(cart.customerId._id);
+//           return customerExists ? cart : null;
+//         })
+//     ).then(carts => carts.filter(cart => cart !== null));
+
+//     // Aggregate stats
+//     const stats = {
+//       today: {
+//         jarsGiven: 0,
+//         jarsTaken: 0,
+//         capsulesGiven: 0,
+//         capsulesTaken: 0,
+//       },
+//       thisMonth: {
+//         jarsGiven: 0,
+//         jarsTaken: 0,
+//         capsulesGiven: 0,
+//         capsulesTaken: 0,
+//       },
+//       customRange: {
+//         jarsGiven: 0,
+//         jarsTaken: 0,
+//         capsulesGiven: 0,
+//         capsulesTaken: 0,
+//       }
+//     };
+//     console.log('today date s', todayStart)
+//     console.log('today date e', todayEnd)
+//     console.log('thisMonthStart', thisMonthStart)
+//     console.log('thisMonthEnd', thisMonthEnd)
+
+//     // Calculate today's stats, this month's stats, and custom range stats
+//     validCarts.forEach(cart => {
+//       cart.item.forEach(cartItem => {
+//         const cartDate = new Date(cartItem.date);
+//         const updateStats = (target) => {
+//           target.jarsGiven += cartItem.jarsGiven || 0;
+//           target.jarsTaken += cartItem.jarsTaken || 0;
+//           target.capsulesGiven += cartItem.capsulesGiven || 0;
+//           target.capsulesTaken += cartItem.capsulesTaken || 0;
+//         };
+
+//         console.log('cartDate', cartDate)
+//         // Update today’s stats if within today's range
+//         if (cartDate >= todayStart && cartDate <= todayEnd) {
+//           updateStats(stats.today);
+//         }
+
+//         // Update this month’s stats if within this month's range
+//         if (cartDate >= thisMonthStart && cartDate <= thisMonthEnd) {
+//           updateStats(stats.thisMonth);
+//         }
+
+//         // Update custom range stats for the filtered date range
+//         if (cartDate >= from && cartDate <= to) {
+//           updateStats(stats.customRange);
+//         }
+//       });
+//     });
+
+//     console.log(stats)
+
+//     // Send final response
+//     res.json({
+//       message: "Valid customer carts retrieved successfully",
+//       success: true,
+//       carts: validCarts,
+//       stats,
+//     });
+//   } catch (error) {
+//     console.error("Error retrieving all carts:", error);
+//     res.status(500).json({ message: error.message, success: false });
+//   }
+// };
 
 
 
