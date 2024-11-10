@@ -13,7 +13,7 @@ const app = express();
 
 // Define CORS options
 const corsOptions = {
-  origin: "*",
+  origin: "https://f-g-ro-plant.vercel.app",
   credentials: true, // Allows cookies to be sent and received
   methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
 };
