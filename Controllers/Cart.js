@@ -302,8 +302,8 @@ export const getAllCartsForDashbord = async (req, res) => {
     const thisMonthEnd = endOfMonth(today);
 
     // Define date range based on request or default to null
-    const from = startDate ? new Date(startDate) : null;
-    const to = endDate ? new Date(endDate) : null;
+    const from = startDate ? startOfDay(new Date(startDate)) : todayStart;
+    const to = endDate ? endOfDay(new Date(endDate)) : todayEnd;
 
     // Fetch carts within the specified or default date range and populate customerId
     const carts = await Cart.find({
