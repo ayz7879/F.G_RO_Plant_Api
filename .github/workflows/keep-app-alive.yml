@@ -1,0 +1,12 @@
+name: Keep App Alive
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # Every 5 minutes
+
+jobs:
+  keep_alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Make Request to Render App
+        run: curl https://f-g-ro-plant-api-1.onrender.com
